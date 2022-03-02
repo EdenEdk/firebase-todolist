@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Dialog, DialogActions, DialogTitle} from '@mui/material';
 import AddTodoDialogContent from './AddTodoDialogContent';
-import {TaskModel} from './Task.model';
+import {getNewBaseTask, TaskModel} from './Task.model';
 
 type Props = {
   open: boolean;
@@ -10,7 +10,7 @@ type Props = {
 };
 
 function AddTodoDialog({ open, onSave, onClose }: Props) {
-  const [newTask, setNewTask] = useState<Partial<TaskModel>>({done:false});
+  const [newTask, setNewTask] = useState<Partial<TaskModel>>(getNewBaseTask());
 
   const handleTaskChange = (key:string, value:any) =>{
     setNewTask((prevTask)=>{
@@ -23,6 +23,7 @@ function AddTodoDialog({ open, onSave, onClose }: Props) {
 
   const handleSave = () => {
     onSave(newTask);
+    setNewTask(getNewBaseTask());
   };
 
   return (
@@ -33,8 +34,9 @@ function AddTodoDialog({ open, onSave, onClose }: Props) {
       fullWidth
     >
       <DialogTitle>Add Todo Item</DialogTitle>
-      <AddTodoDialogContent titleChanged={(title:string)=>handleTaskChange('title', title)}
-                            douDateChanged={(douDate:string)=>handleTaskChange('douDate', douDate)}
+      <AddTodoDialogContent task={newTask}
+                            titleChanged={(title:string)=>handleTaskChange('title', title)}
+                            douDateChanged={(douDate:number)=>handleTaskChange('douDate', douDate)}
                             priorityChanged={(priority:number)=>handleTaskChange('priority', priority)}/>
       <DialogActions>
         <Button onClick={onClose} color="primary">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React  from 'react';
 
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
@@ -9,7 +9,7 @@ import {TaskModel} from './Task.model';
 
 type TodoTableHeadProps = {
   tasks:TaskModel[];
-  selected: number[];
+  selected: string[];
   order: 'asc' | 'desc';
   orderBy: ''| 'douDate' | 'priority';
   handleSelectAll: (e: React.ChangeEvent<HTMLInputElement>) => void;

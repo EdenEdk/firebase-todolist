@@ -1,11 +1,10 @@
-import React, {useState} from 'react';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import React from 'react';
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import DateFnsUtils from '@date-io/date-fns';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker
-} from '@material-ui/pickers';
+import {KeyboardDatePicker, MuiPickersUtilsProvider} from '@material-ui/pickers';
 import {DialogContent, DialogContentText, Grid, Input, Slider, TextField} from '@mui/material';
+import {TaskModel} from './Task.model';
+import {MaterialUiPickersDate} from '@material-ui/pickers/typings/date';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -16,43 +15,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface AddTodoDialogContentProps{
+  task:Partial<TaskModel>;
   titleChanged:(name:string)=>void;
-  douDateChanged:(name:string)=>void;
+  douDateChanged:(douDate:number)=>void;
   priorityChanged:(priority:number)=>void;
 }
 
-function AddTodoDialogContent({titleChanged, douDateChanged, priorityChanged}:AddTodoDialogContentProps) {
+function AddTodoDialogContent({task, titleChanged, douDateChanged, priorityChanged}:AddTodoDialogContentProps) {
   const classes = useStyles();
-  const [douDate, setDouDate] = useState('');
-  const [priority, setPriority] = useState(1);
-
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    titleChanged(e.target.value);
-  };
-
-  const handleDouDateChange = (date: any) => {
-    setDouDate(date);
-    douDateChanged(date);
-  };
-
-  const handleSliderChange = (e: Event, newValue: any) => {
-    setPriority(newValue);
-    priorityChanged(newValue);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = Number(e.target.value);
-    setPriority(newValue);
-    priorityChanged(newValue);
-  };
-
-  const handleBlur = () => {
-    if (priority < 1) {
-      setPriority(1);
-    } else if (priority > 5) {
-      setPriority(5);
-    }
-  };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -63,7 +33,8 @@ function AddTodoDialogContent({titleChanged, douDateChanged, priorityChanged}:Ad
         <Grid container spacing={6} direction="column">
           <Grid item>
             <TextField
-              onChange={handleContentChange}
+              value={task.title}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => titleChanged(e.target.value)}
               margin="dense"
               id="name"
               label="Todo Title"
@@ -77,8 +48,8 @@ function AddTodoDialogContent({titleChanged, douDateChanged, priorityChanged}:Ad
               margin="normal"
               id="date-picker-inline"
               label="Dou Date"
-              value={douDate}
-              onChange={date => handleDouDateChange(date)}
+              value={task.douDate}
+              onChange={(date:MaterialUiPickersDate) => douDateChanged(date!.getTime())}
               invalidDateMessage="Invalid Date"
               minDateMessage="You cannot specify a date earlier than yesterday"
             />
@@ -89,8 +60,8 @@ function AddTodoDialogContent({titleChanged, douDateChanged, priorityChanged}:Ad
             </Grid>
             <Grid item xs={8}>
               <Slider
-                value={priority}
-                onChange={handleSliderChange}
+                value={task.priority}
+                onChange={(e: Event, newValue: number | number[]) => priorityChanged(newValue as number)}
                 defaultValue={1}
                 aria-valuetext=""
                 aria-labelledby="discrete-slider"
@@ -103,10 +74,9 @@ function AddTodoDialogContent({titleChanged, douDateChanged, priorityChanged}:Ad
             </Grid>
             <Grid item xs={2}>
               <Input
-                value={priority}
+                value={task.priority}
                 margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => priorityChanged(Number(e.target.value))}
                 inputProps={{
                   step: 1,
                   min: 1,

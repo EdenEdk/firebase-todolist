@@ -10,36 +10,44 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { format } from 'date-fns';
 import TodoTableHead from './TodoTableHead';
 import {sortTasks, TaskModel} from './Task.model';
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 
 interface TodoTableProps {
   tasks: TaskModel[];
-  handleDeleteTasks: (taskIds: number[]) => void;
-  handleDoneChanged: (taskId:number, newValue:boolean)=>void;
+  handleDeleteTasks: (taskIds: string[]) => void;
+  handleDoneChanged: (taskId:string, newValue:boolean)=>void;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    doneTask: {
+      opacity: '0.4'
+    }
+  })
+);
 
 function TodoTable({tasks, handleDeleteTasks, handleDoneChanged}:TodoTableProps) {
-  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const classes = useStyles();
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [sortedTasks, setSortedTasks] = useState(tasks);
   const [orderBy, setOrderBy] = useState<'douDate' | 'priority' | ''>('');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
-    if(orderBy && order){
-      setSortedTasks(sortTasks(tasks, orderBy, order));
-    }
+    const tasksAfterSort = (orderBy && order) ? sortTasks(tasks, orderBy, order) : tasks;
+    setSortedTasks(tasksAfterSort)
   }, [tasks]);
 
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setSelectedTasks(sortedTasks.map(task=>task.id));
-      return;
+    } else{
+      setSelectedTasks([]);
     }
-    setSelectedTasks([]);
   };
 
-  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>, pressedTaskId: number) => {
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>, pressedTaskId: string) => {
     const alreadySelected = selectedTasks.includes(pressedTaskId);
     const newSelectedTasks = alreadySelected ? selectedTasks.filter(selectedTaskId => selectedTaskId !== pressedTaskId) : [...selectedTasks, pressedTaskId];
     setSelectedTasks(newSelectedTasks);
@@ -50,7 +58,7 @@ function TodoTable({tasks, handleDeleteTasks, handleDoneChanged}:TodoTableProps)
     setSelectedTasks([]);
   };
 
-  const handleDone = (taskId: number, done:boolean) =>{
+  const handleDone = (taskId: string, done:boolean) =>{
     handleDoneChanged(taskId, !done);
   }
 
@@ -83,7 +91,7 @@ function TodoTable({tasks, handleDeleteTasks, handleDoneChanged}:TodoTableProps)
           />
           <TableBody>
             {sortedTasks.map((task: TaskModel) => (
-              <TableRow key={task.id}>
+              <TableRow key={task.id} className={task.done ? classes.doneTask : ''}>
                 <TableCell padding="checkbox">
                   <Checkbox
                     checked={selectedTasks.includes(task.id)}

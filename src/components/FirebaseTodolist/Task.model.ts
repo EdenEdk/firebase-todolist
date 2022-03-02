@@ -1,9 +1,13 @@
 export interface TaskModel{
-  id:number;
+  id:string;
   title:string;
   douDate:number;
   priority:number;
   done:boolean;
+}
+
+export function getNewBaseTask() {
+  return {title:'', priority:1, douDate: Date.now(), done:false};
 }
 
 export const sortTasks = (

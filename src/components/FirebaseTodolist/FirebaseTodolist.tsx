@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
 import {AppBar, Toolbar} from '@mui/material';
-import { Box, Typography, Fab } from '@material-ui/core';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-
+import {Box, Fab, Typography} from '@material-ui/core';
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import AddIcon from '@mui/icons-material/Add';
 import EmptyList from './EmptyList';
 import AddTodoDialog from './AddTodoDialog';
 import {TaskModel} from './Task.model';
 import TodoTable from './TodoTable';
+import {withFirebase} from './WithFirebase';
+import {FirebaseApi} from './firebase.api';
+import {useCollectionData} from 'react-firebase-hooks/firestore';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,22 +23,25 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   })
 );
+
 function FirebaseTodolist(){
-    const classes = useStyles();
-    const tasks:TaskModel[] = [];
-    const [open, setOpen] = useState<boolean>(false);
+  const classes = useStyles();
+  const [open, setOpen] = useState<boolean>(false);
+  const [tasks] = useCollectionData<TaskModel>(FirebaseApi.collection as any, {idField:'id'} as any);
 
-    const handleAddTask = (task:Partial<TaskModel>)=>{
-      console.log('FIREBASE SAVE', task);
-      handleClose();
-    }
-
-  const handleDeleteTasks = (tasksIds:number[])=>{
-    console.log('FIREBASE Delete', tasksIds);
+  const handleAddTask = async(task:Partial<TaskModel>)=>{
+    await FirebaseApi.addTask(task);
+    handleClose();
   }
 
-  const handleDoneChanged = (taskId:number, newValue:boolean)=>{
-    console.log('FIREBASE Done', taskId, newValue);
+  const handleDeleteTasks = (tasksIds:string[])=>{
+    for(const taskId of tasksIds){
+      FirebaseApi.deleteTask(taskId);
+    }
+  }
+
+  const handleDoneChanged = (taskId:string, newValue:boolean)=>{
+    FirebaseApi.updateTaskDone(taskId, newValue);
   }
 
     const handleOpen = () => setOpen(true);
@@ -49,10 +54,10 @@ function FirebaseTodolist(){
             <Typography variant="h6">My TO DO List</Typography>
           </Toolbar>
         </AppBar>
-        <Box padding="2rem" textAlign={tasks.length !== 0 ? '' : 'center'}>
-          {tasks.length !== 0 ? (
+        <Box padding="2rem" textAlign={tasks?.length !== 0 ? '' : 'center'}>
+          {tasks?.length !== 0 ? (
             <>
-              <TodoTable tasks={tasks} handleDeleteTasks={handleDeleteTasks} handleDoneChanged={handleDoneChanged}/>
+              <TodoTable tasks={tasks || []} handleDeleteTasks={handleDeleteTasks} handleDoneChanged={handleDoneChanged}/>
               <Fab
                 className={classes.fab}
                 onClick={handleOpen}
@@ -68,9 +73,7 @@ function FirebaseTodolist(){
           <AddTodoDialog open={open} onSave={handleAddTask} onClose={handleClose} />
         </Box>
       </>
-
     );
-
-
 }
-export default React.memo(FirebaseTodolist);
+
+export default React.memo(withFirebase(FirebaseTodolist));
