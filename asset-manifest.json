@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/firebase-todolist/static/css/main.339fe9f5.css",
+    "main.js": "/firebase-todolist/static/js/main.281fedaf.js",
+    "static/js/787.2802b876.chunk.js": "/firebase-todolist/static/js/787.2802b876.chunk.js",
+    "index.html": "/firebase-todolist/index.html",
+    "main.339fe9f5.css.map": "/firebase-todolist/static/css/main.339fe9f5.css.map",
+    "main.281fedaf.js.map": "/firebase-todolist/static/js/main.281fedaf.js.map",
+    "787.2802b876.chunk.js.map": "/firebase-todolist/static/js/787.2802b876.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.339fe9f5.css",
+    "static/js/main.281fedaf.js"
+  ]
+}
